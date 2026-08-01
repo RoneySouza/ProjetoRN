@@ -53,8 +53,8 @@ def Listar_Produtos(text,listado):
     if text == 2:
         print('PRODUTOS CADASTRADOS'.center(30))
         print('-'*30)   
-        for c in listado:
-            print(f'Nome: {c['nome']}', end=' ')
+        for pos,c in enumerate(listado):
+            print(f'{pos} Nome: {c['nome']}', end=' ')
             print(f'Preço: R${c['preco']:.2f}', end=' ')
             print(f'Peso: {c['Quantidade']}kg', end=' ')
             print()
@@ -62,5 +62,16 @@ def Listar_Produtos(text,listado):
             
                 
 def Pesquisar_Produtos(lista):
-                    
     
+    if lista == 3:
+        print('PESQUISANDO PRODUTOS'.center(30))
+        print('-'*30)
+        pesq = int(input('Digite o Codigo do Produto q vc quer ver: '))
+        for p,c in enumerate(produtos):
+            if pesq == p:
+                print('~'*30)
+                print(f'Nome: {c['nome']} Preço: R${c['preco']} Quantidade: {c['Quantidade']}kg')
+                print('~'*30)
+            else:
+                print('Digite o Cod Correto')               
+                
