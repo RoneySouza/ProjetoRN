@@ -24,7 +24,7 @@ while True:
               
     cadastrar_Produtos(num)
     Listar_Produtos(num,produtos)
-    Pesquisar_Produtos(num)
+    Pesquisar_Produtos(num,produtos)
     
     if num == 4:
         print('Até Logo')

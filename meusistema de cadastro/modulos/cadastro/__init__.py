@@ -61,17 +61,18 @@ def Listar_Produtos(text,listado):
             print('-'*30)
             
                 
-def Pesquisar_Produtos(lista):
+def Pesquisar_Produtos(lista,lista_produtos):
     
     if lista == 3:
         print('PESQUISANDO PRODUTOS'.center(30))
         print('-'*30)
         pesq = int(input('Digite o Codigo do Produto q vc quer ver: '))
-        for p,c in enumerate(produtos):
-            if pesq == p:
-                print('~'*50)
-                print(f'Nome: {c['nome']} Preço: R${c['preco']} Quantidade: {c['Quantidade']}kg')
-                print('~'*50)
-            else:
-                print('Digite o Cod Correto')               
+
+        if 0 <= pesq < len(lista_produtos):
+            produto = lista_produtos[pesq]
+            print('~'*50)
+            print(f'Nome: {produto["nome"]} Preço: R${produto["preco"]} Quantidade: {produto["Quantidade"]}kg')
+            print('~'*50)
+        else:
+            print('Digite o Cod Correto')               
                 
