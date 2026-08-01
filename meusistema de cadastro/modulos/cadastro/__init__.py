@@ -69,9 +69,9 @@ def Pesquisar_Produtos(lista):
         pesq = int(input('Digite o Codigo do Produto q vc quer ver: '))
         for p,c in enumerate(produtos):
             if pesq == p:
-                print('~'*30)
+                print('~'*50)
                 print(f'Nome: {c['nome']} Preço: R${c['preco']} Quantidade: {c['Quantidade']}kg')
-                print('~'*30)
+                print('~'*50)
             else:
                 print('Digite o Cod Correto')               
                 
