@@ -41,7 +41,9 @@ def cadastrar_Produtos(text):
                 else:
                     break
         if pergunta in 'Nn':
-            print('cadastro finalizado')
+            print('-'*30)
+            print('CADASTRO FINALIZADO'.center(30))
+            print('-'*30)
             break
        
             
@@ -66,8 +68,11 @@ def Pesquisar_Produtos(lista,lista_produtos):
     if lista == 3:
         print('PESQUISANDO PRODUTOS'.center(30))
         print('-'*30)
-        pesq = int(input('Digite o Codigo do Produto q vc quer ver: '))
-
+        try:
+            pesq = int(input('Digite o Codigo do Produto q vc quer ver: '))
+        except:
+            print('digite uma opção valida')
+            
         if 0 <= pesq < len(lista_produtos):
             produto = lista_produtos[pesq]
             print('~'*50)
@@ -76,3 +81,69 @@ def Pesquisar_Produtos(lista,lista_produtos):
         else:
             print('Digite o Cod Correto')               
                 
+def editar_Produtos(editar,produtos):
+    
+    
+    
+    if editar == 4:
+        print('~~'*10)
+        print('EDITAR UM PRODUTO'.center(10))
+        print('~~'*10)
+        try:
+            pesq =  str(input('Qual Produto Voce quer editar: ')).lower()
+            produto_encontrado = False
+        except:
+            print('Escolha uma Opção valida!')
+        
+        for i in produtos:
+            
+            if pesq.lower() == i['nome'].lower():
+                produto_encontrado = True
+                print('-'*30)
+                print(f'Editar o Prduto {i["nome"]}'.center(30))
+                print('-'*30)
+                
+                print(f'Nome: {i["nome"]} Preço: {i["preco"]} Quantidade: {i["Quantidade"]}')
+                
+                try:
+                    novonome = str(input('Novo Nome: ')).strip().lower()  
+                except:
+                    print('Digite o Valor Correto')
+                try:        
+                    novopreco = float(input('Novo Preço: '))   
+                except:
+                    print('Digite o Valor correto')
+                try:        
+                    novaquantidade = int(input('Nova Quantidade: '))  
+                except:
+                    print('Digite o Valor Correto')
+                    
+                try:    
+                    att = str(input('Atualizar Produto: S/N ')).strip()
+                except:
+                    print('Dgite o Valor Correto')    
+                if att not in "SsNn":
+                    print('Escolha a Opçao Correta')
+                elif att in 'Ss':
+                    i["nome"] = novonome
+                    i["preco"] = novopreco
+                    i["Quantidade"] = novaquantidade
+                    print('PRODUTO ATUALIZADO')
+                    break
+                       
+                elif att in 'Nn':
+                    print('PRODUTO NAO ATUALIZADO')
+                    break          
+                          
+        if not produto_encontrado:
+            print('PRODUTO NAO ECONTRADO')
+                
+                
+                
+
+
+
+
+    
+                 
+                 
