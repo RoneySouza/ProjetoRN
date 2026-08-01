@@ -26,7 +26,7 @@ def cadastrar_Produtos(text):
             while True:
                 
                 try:
-                    ficha['Quantidade'] = int(input('Quantidade kg: '))
+                    ficha['quantidade'] = int(input('Quantidade kg: '))
                 except:
                     print('Digite o valor correto')
                 else:
@@ -58,7 +58,7 @@ def Listar_Produtos(text,listado):
         for pos,c in enumerate(listado):
             print(f'{pos} Nome: {c['nome']}', end=' ')
             print(f'Preço: R${c['preco']:.2f}', end=' ')
-            print(f'Peso: {c['Quantidade']}kg', end=' ')
+            print(f'Peso: {c['quantidade']}kg', end=' ')
             print()
             print('-'*30)
             
@@ -80,6 +80,7 @@ def Pesquisar_Produtos(lista,lista_produtos):
             print('~'*50)
         else:
             print('Digite o Cod Correto')               
+ 
                 
 def editar_Produtos(editar,produtos):
     
@@ -139,11 +140,40 @@ def editar_Produtos(editar,produtos):
             print('PRODUTO NAO ECONTRADO')
                 
                 
-                
-
-
-
-
+def excluir_Produtos(excluir,produtos):
     
-                 
+    if excluir == 5:
+        print('-'*30)
+        print('EXCLUIR PRODUTOS'.center(30))
+        print('-'*30)
+        try:                
+            pesq = str(input('Qual Produto Voce Deseja Excluir: ')).lower().strip()
+            produtoencontrado = False
+        except:
+            print('Digite o Valor correto!!')
+            
+        for pos,i in enumerate(produtos):
+
+            if pesq.lower() == i['nome'].lower():
+                produtoencontrado = True
+                print('-'*50)
+                print(f'Nome: {i["nome"]} Preço: R${i["preco"]} Quantidade: {i["quantidade"]}Kg')
+                print('-'*50)
+                
+                try:
+                    apagar = str(input(f'Deseja Excluir Mesmo o {i['nome']}: S/N '))
+                except:
+                    print('Digite o Valor Correto')
+                if apagar not in "SsNn":
+                    print('Digite a opção Correta')        
+                if apagar in "Ss":
+                    print(f'O Produto {i["nome"]} Foi Excluido')
+                    produtos.remove(i)
+                    break
+                if apagar in 'Nn':
+                    print(f'O produto {i['nome']} nao foi Excluido')
+                    break  
+    elif not  produtoencontrado:
+        print('PRODUTO NAO ENCONTRADO')
+        return             
                  

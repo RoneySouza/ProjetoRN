@@ -1,4 +1,4 @@
-from modulos.cadastro import cadastrar_Produtos, Listar_Produtos,produtos,ficha,Pesquisar_Produtos,editar_Produtos  
+from modulos.cadastro import cadastrar_Produtos, Listar_Produtos,produtos,Pesquisar_Produtos,editar_Produtos,excluir_Produtos  
   
 
 print('-'*20)
@@ -12,7 +12,8 @@ while True:
     2 - Listar Produtos
     3 - Pesquisar Produtos
     4 - Editar Produtos
-    5 - sair             
+    5 - Excluir Produtos
+    6 - Sair             
             """)
     while True:
         
@@ -27,8 +28,9 @@ while True:
     Listar_Produtos(num,produtos)
     Pesquisar_Produtos(num,produtos)
     editar_Produtos(num,produtos)
+    excluir_Produtos(num,produtos)
     
-    if num == 5:
+    if num == 6:
         print('Até Logo')
         break
     
