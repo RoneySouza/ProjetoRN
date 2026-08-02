@@ -1,36 +1,29 @@
-from modulos.cadastro import cadastrar_Produtos, Listar_Produtos,produtos,Pesquisar_Produtos,editar_Produtos,excluir_Produtos  
-  
+from modulos.cadastro import menu  
+ 
+print('~'*30)  
+print('BEM VINDO'.center(30))
+print('~'*30)
 
-print('-'*20)
-print('SISTEMA IN NATURE'.center(20))
-print('-'*20)
+print('Para Abrir o Menu Aperte 0')
 
 while True:
-    
-    print("""
-    1 - Cadastrar Produtos
-    2 - Listar Produtos
-    3 - Pesquisar Produtos
-    4 - Editar Produtos
-    5 - Excluir Produtos
-    6 - Sair             
-            """)
-    while True:
+    try:
+        abrir = int(input('Abrir Menu: '))
+    except(TypeError,ValueError):
+        print('Digite o Valor Correto')
+        continue
         
-        try:
-           num  = int(input('Qual Sua Escolha: '))
-        except:
-            print('Digite a opção correta')
-        else:
-            break    
-              
-    cadastrar_Produtos(num)
-    Listar_Produtos(num,produtos)
-    Pesquisar_Produtos(num,produtos)
-    editar_Produtos(num,produtos)
-    excluir_Produtos(num,produtos)
+
+    if abrir != 0:
+        print('Essa opçao nao existe')
+    else:
+        break    
+menu(abrir)    
+           
+ 
+                  
+
+
     
-    if num == 6:
-        print('Até Logo')
-        break
+
     

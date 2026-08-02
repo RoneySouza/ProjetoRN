@@ -68,19 +68,22 @@ def Pesquisar_Produtos(lista,lista_produtos):
     if lista == 3:
         print('PESQUISANDO PRODUTOS'.center(30))
         print('-'*30)
-        try:
-            pesq = int(input('Digite o Codigo do Produto q vc quer ver: '))
-        except:
-            print('digite uma opção valida')
-            
-        if 0 <= pesq < len(lista_produtos):
-            produto = lista_produtos[pesq]
-            print('~'*50)
-            print(f'Nome: {produto["nome"]} Preço: R${produto["preco"]} Quantidade: {produto["Quantidade"]}kg')
-            print('~'*50)
-        else:
-            print('Digite o Cod Correto')               
- 
+        while True:
+            try:
+                pesq = int(input('Digite o Codigo do Produto q vc quer ver: '))
+            except(ValueError,TypeError):
+                print('digite uma opção valida')
+                continue
+   
+            if 0 <= pesq < len(lista_produtos):
+                produto = lista_produtos[pesq]
+                print('~'*50)
+                print(f'Nome: {produto["nome"]} Preço: R${produto["preco"]} Quantidade: {produto["quantidade"]}kg')
+                print('~'*50)
+                break
+            else:
+                print('Digite o Cod Correto')               
+    
                 
 def editar_Produtos(editar,produtos):
     
@@ -104,7 +107,7 @@ def editar_Produtos(editar,produtos):
                 print(f'Editar o Prduto {i["nome"]}'.center(30))
                 print('-'*30)
                 
-                print(f'Nome: {i["nome"]} Preço: {i["preco"]} Quantidade: {i["Quantidade"]}')
+                print(f'Nome: {i["nome"]} Preço: {i["preco"]} Quantidade: {i["quantidade"]}')
                 
                 try:
                     novonome = str(input('Novo Nome: ')).strip().lower()  
@@ -128,7 +131,7 @@ def editar_Produtos(editar,produtos):
                 elif att in 'Ss':
                     i["nome"] = novonome
                     i["preco"] = novopreco
-                    i["Quantidade"] = novaquantidade
+                    i["quantidade"] = novaquantidade
                     print('PRODUTO ATUALIZADO')
                     break
                        
@@ -173,7 +176,41 @@ def excluir_Produtos(excluir,produtos):
                 if apagar in 'Nn':
                     print(f'O produto {i['nome']} nao foi Excluido')
                     break  
-    elif not  produtoencontrado:
-        print('PRODUTO NAO ENCONTRADO')
-        return             
-                 
+        if not  produtoencontrado:
+            print('PRODUTO NAO ENCONTRADO')
+            return             
+ 
+ 
+def menu(abrir):
+    
+    if abrir == 0:   
+        print('~'*30)
+        print('SISTEMA IN NATURE'.center(30))
+        print('~'*30)
+        while True:
+            
+            print("""
+            MENU
+        1 - CADASTRAR PRODUTOS
+        2 - LISTA DE PRODUTOS
+        3 - PESQUISAR PRODUTOS
+        4 - EDITAR PRODUTOS
+        5 - EXCLUIR PRODUTOS
+        6 - SAIR
+                """)
+                
+            try:
+                num  = int(input('Qual Sua Escolha: '))
+            except:
+                print('Digite a opção correta')
+            
+            if num == 6:
+                print('Até Logo')
+            if num > 6:
+                print('Essa opçao nao Existe')
+                    
+            cadastrar_Produtos(num)
+            Listar_Produtos(num,produtos)
+            Pesquisar_Produtos(num,produtos)
+            editar_Produtos(num,produtos)
+            excluir_Produtos(num,produtos)                                   
