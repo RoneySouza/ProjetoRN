@@ -124,7 +124,7 @@ def editar_Produtos(editar,produtos):
                 while True:    
                     try:        
                         novopreco = float(input('Novo Preço: '))   
-                    except:
+                    except(TypeError,ValueError):
                         print('Digite o Valor correto')
                         continue
                     else:
@@ -133,7 +133,7 @@ def editar_Produtos(editar,produtos):
                 while True:    
                     try:        
                         novaquantidade = int(input('Nova Quantidade: '))  
-                    except:
+                    except(TypeError,ValueError):
                         print('Digite o Valor Correto')
                         continue
                     else:
@@ -218,14 +218,15 @@ def menu(abrir):
                 
             try:
                 num  = int(input('Qual Sua Escolha: '))
-            except:
+            except(ValueError,TypeError):
                 print('Digite a opção correta')
             
             if num == 6:
                 print('Até Logo')
                 break
-            if num > 6:
+            if num not in range(1,7):
                 print('Essa opçao nao Existe')
+                continue
                     
             cadastrar_Produtos(num)
             Listar_Produtos(num,produtos)
