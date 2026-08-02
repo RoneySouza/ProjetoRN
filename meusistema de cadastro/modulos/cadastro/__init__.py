@@ -1,3 +1,5 @@
+from modulos.bancodedados.bd import cursor,conexao
+
 produtos = []
 ficha = {}    
 def cadastrar_Produtos(text):
@@ -11,7 +13,6 @@ def cadastrar_Produtos(text):
             print('CADASTRANDO PRODUTOS'.center(30))
             print('-'*30)
             ficha['nome'] = str(input('Nome: '))
-            
             while True:
                 try :
                     ficha['preco'] = float(input('Preço R$: ')) 
@@ -32,7 +33,25 @@ def cadastrar_Produtos(text):
                 else:
                     break      
             
-            produtos.append(ficha.copy())
+            con_bd = "INSERT INTO produtos(nome,quantidade,preco) VALUES(%s,%s,%s)"
+            cursor.execute(con_bd,(ficha['nome'],ficha['preco'],ficha['quantidade'],))
+            
+            
+            while True:
+                try:
+                    per_cad = str(input('CONFIRMAR CADASTRO: S/N '))
+                except:
+                    print('Digite uma opção valida')
+                if per_cad not in "SsNn":
+                    print('Digite a opção correta')
+                if per_cad in 'Ss':
+                    print('PRODUTO CADASTRADO COM SUCESSO')
+                    conexao.commit()
+                    # produtos.append(ficha.copy()) sem necessidade no momento
+                    break 
+                elif per_cad in 'Nn':
+                    print('PRODUTO NAO CADASTRADO')
+                    break        
             
             while True:
                 pergunta = str(input('Quer Cadastrar mais Produtos: S/N ')).strip()
