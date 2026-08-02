@@ -66,21 +66,23 @@ def cadastrar_Produtos(text):
             break
        
             
-def Listar_Produtos(text,listado):
+def Listar_Produtos(text,listado=0):
     
     if text != 2:
         return
    
     if text == 2:
         print('PRODUTOS CADASTRADOS'.center(30))
-        print('-'*30)   
-        for pos,c in enumerate(listado):
-            print(f'{pos} Nome: {c['nome']}', end=' ')
-            print(f'Preço: R${c['preco']:.2f}', end=' ')
-            print(f'Peso: {c['quantidade']}kg', end=' ')
+        print('-'*30)
+        cursor.execute("SELECT * FROM produtos")
+        produtos = cursor.fetchall()
+        
+        for c in produtos:
+            print(f'ID {c[0]} Nome: {c[1]}', end=' ')
+            print(f'Preço: R${c[2]:.2f}', end=' ')
+            print(f'Peso: {c[3]}kg', end=' ')
             print()
-            print('-'*30)
-            
+            print('-'*30)           
                 
 def Pesquisar_Produtos(lista,lista_produtos):
     
