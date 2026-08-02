@@ -223,6 +223,7 @@ def menu(abrir):
             
             if num == 6:
                 print('Até Logo')
+                break
             if num > 6:
                 print('Essa opçao nao Existe')
                     
