@@ -104,7 +104,7 @@ def editar_Produtos(editar,produtos):
             if pesq.lower() == i['nome'].lower():
                 produto_encontrado = True
                 print('-'*30)
-                print(f'Editar o Prduto {i["nome"]}'.center(30))
+                print(f'Editar o Produto {i["nome"]}'.center(30))
                 print('-'*30)
                 
                 print(f'Nome: {i["nome"]} Preço: {i["preco"]} Quantidade: {i["quantidade"]}')
