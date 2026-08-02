@@ -108,20 +108,37 @@ def editar_Produtos(editar,produtos):
                 print('-'*30)
                 
                 print(f'Nome: {i["nome"]} Preço: {i["preco"]} Quantidade: {i["quantidade"]}')
-                
-                try:
-                    novonome = str(input('Novo Nome: ')).strip().lower()  
-                except:
-                    print('Digite o Valor Correto')
-                try:        
-                    novopreco = float(input('Novo Preço: '))   
-                except:
-                    print('Digite o Valor correto')
-                try:        
-                    novaquantidade = int(input('Nova Quantidade: '))  
-                except:
-                    print('Digite o Valor Correto')
+                while True:
+                    try:
+                        novonome = str(input('Novo Nome: ')).strip().lower()  
+                    except:
+                        print('Digite o Valor Correto')
+                        continue
+                    if novonome.strip() == '':
+                        print("Digite algum Nome")
                     
+                    else:
+                        print('Nome Alterado')
+                        break
+                    
+                while True:    
+                    try:        
+                        novopreco = float(input('Novo Preço: '))   
+                    except:
+                        print('Digite o Valor correto')
+                        continue
+                    else:
+                        print('Preço Alterado')
+                        break
+                while True:    
+                    try:        
+                        novaquantidade = int(input('Nova Quantidade: '))  
+                    except:
+                        print('Digite o Valor Correto')
+                        continue
+                    else:
+                        print('Quantidade Alterado')
+                        break
                 try:    
                     att = str(input('Atualizar Produto: S/N ')).strip()
                 except:
