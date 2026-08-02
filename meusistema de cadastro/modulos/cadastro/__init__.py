@@ -84,26 +84,28 @@ def Listar_Produtos(text,listado=0):
             print()
             print('-'*30)           
                 
-def Pesquisar_Produtos(lista,lista_produtos):
+def Pesquisar_Produtos(lista,lista_produtos=0):
     
     if lista == 3:
         print('PESQUISANDO PRODUTOS'.center(30))
         print('-'*30)
         while True:
             try:
-                pesq = int(input('Digite o Codigo do Produto q vc quer ver: '))
+                pesq = str(input('Digite o Nome do Produto q vc quer ver: ')).strip()
             except(ValueError,TypeError):
                 print('digite uma opção valida')
                 continue
-   
-            if 0 <= pesq < len(lista_produtos):
-                produto = lista_produtos[pesq]
+            con_bd = ("SELECT * FROM produtos WHERE nome = %s ")
+            cursor.execute(con_bd,(pesq,))
+            produtos = cursor.fetchone()
+                    
+            if produtos is not None:
                 print('~'*50)
-                print(f'Nome: {produto["nome"]} Preço: R${produto["preco"]} Quantidade: {produto["quantidade"]}kg')
+                print(f'Nome: {produtos[1]} Preço: R${produtos[2]} Quantidade: {produtos[3]}kg')
                 print('~'*50)
                 break
-            else:
-                print('Digite o Cod Correto')               
+            elif produtos == None:
+                print('Esse Produto Nao existe')               
     
                 
 def editar_Produtos(editar,produtos):
