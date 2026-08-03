@@ -108,7 +108,7 @@ def Pesquisar_Produtos(lista,lista_produtos=0):
                 print('Esse Produto Nao existe')               
     
                 
-def editar_Produtos(editar,produtos):
+def editar_Produtos(editar,produto=0):
     
     
     
@@ -117,70 +117,72 @@ def editar_Produtos(editar,produtos):
         print('EDITAR UM PRODUTO'.center(10))
         print('~~'*10)
         try:
-            pesq =  str(input('Qual Produto Voce quer editar: ')).lower()
-            produto_encontrado = False
+            pesq =  str(input('Qual ID Voce quer editar: ')).lower()
+            print()
         except:
             print('Escolha uma Opção valida!')
-        
-        for i in produtos:
             
-            if pesq.lower() == i['nome'].lower():
-                produto_encontrado = True
-                print('-'*30)
-                print(f'Editar o Produto {i["nome"]}'.center(30))
-                print('-'*30)
-                
-                print(f'Nome: {i["nome"]} Preço: {i["preco"]} Quantidade: {i["quantidade"]}')
-                while True:
-                    try:
-                        novonome = str(input('Novo Nome: ')).strip().lower()  
-                    except:
-                        print('Digite o Valor Correto')
-                        continue
-                    if novonome.strip() == '':
-                        print("Digite algum Nome")
-                    
-                    else:
-                        print('Nome Alterado')
-                        break
-                    
-                while True:    
-                    try:        
-                        novopreco = float(input('Novo Preço: '))   
-                    except(TypeError,ValueError):
-                        print('Digite o Valor correto')
-                        continue
-                    else:
-                        print('Preço Alterado')
-                        break
-                while True:    
-                    try:        
-                        novaquantidade = int(input('Nova Quantidade: '))  
-                    except(TypeError,ValueError):
-                        print('Digite o Valor Correto')
-                        continue
-                    else:
-                        print('Quantidade Alterado')
-                        break
-                try:    
-                    att = str(input('Atualizar Produto: S/N ')).strip()
+        con_db = ("SELECT * FROM produtos WHERE id = %s ")
+        cursor.execute(con_db,(pesq,))
+        produtos = cursor.fetchone()
+        
+        if produtos is None:
+            print('Produto Nao Econtrado')
+            return
+        
+        print(f'Nome: {produtos[1]} Preço: {produtos[2]} Quantidade: {produtos[3]}')
+        
+        while True:
+            
+            while True:
+                try:
+                    novonome = str(input('Novo Nome: ')).strip().lower()  
                 except:
-                    print('Dgite o Valor Correto')    
-                if att not in "SsNn":
-                    print('Escolha a Opçao Correta')
-                elif att in 'Ss':
-                    i["nome"] = novonome
-                    i["preco"] = novopreco
-                    i["quantidade"] = novaquantidade
-                    print('PRODUTO ATUALIZADO')
+                    print('Digite o Valor Correto')
+                    continue
+                if novonome.strip() == '':
+                    print("Digite algum Nome")
+                    continue    
+                else:
+                    print('Nome Alterado')
                     break
+                    
+            while True:    
+                try:        
+                    novopreco = float(input('Novo Preço: '))   
+                except(TypeError,ValueError):
+                    print('Digite o Valor correto')
+                    continue
+                else:
+                    print('Preço Alterado')
+                    break
+            while True:    
+                try:        
+                    novaquantidade = int(input('Nova Quantidade: '))  
+                except(TypeError,ValueError):
+                    print('Digite o Valor Correto')
+                    continue
+                else:
+                    print('Quantidade Alterada')
+                    break
+            try:    
+                att = str(input('Atualizar Produto: S/N ')).strip()
+            except:
+                print('Dgite o Valor Correto')    
+            if att not in "SsNn":
+                print('Escolha a Opçao Correta')
+            elif att in 'Ss':
+                con_produtos = ("UPDATE produtos SET nome = %s, preco = %s, quantidade = %s WHERE id  = %s")
+                valores = (novonome,novopreco,novaquantidade,pesq)
+                cursor.execute(con_produtos,valores)
+                conexao.commit()
+                print('PRODUTO ATUALIZADO')
+                break
                        
-                elif att in 'Nn':
-                    print('PRODUTO NAO ATUALIZADO')
-                    break          
-                          
-        if not produto_encontrado:
-            print('PRODUTO NAO ECONTRADO')
+            elif att in 'Nn':
+                print('PRODUTO NAO ATUALIZADO')
+                break          
+                
                 
                 
 def excluir_Produtos(excluir,produtos):
