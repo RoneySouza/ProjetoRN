@@ -185,43 +185,49 @@ def editar_Produtos(editar,produto=0):
                 
                 
                 
-def excluir_Produtos(excluir,produtos):
+def excluir_Produtos(excluir,produto=0):
     
     if excluir == 5:
         print('-'*30)
         print('EXCLUIR PRODUTOS'.center(30))
         print('-'*30)
         try:                
-            pesq = str(input('Qual Produto Voce Deseja Excluir: ')).lower().strip()
+            pesq = int(input('Qual Id do Produto Deseja Excluir: '))
             produtoencontrado = False
         except:
             print('Digite o Valor correto!!')
             
-        for pos,i in enumerate(produtos):
+        pes_db = ("SELECT * FROM produtos WHERE id = %s ")
+        cursor.execute(pes_db,(pesq,))
+        produtos = cursor.fetchone()
+        
 
-            if pesq.lower() == i['nome'].lower():
-                produtoencontrado = True
-                print('-'*50)
-                print(f'Nome: {i["nome"]} Preço: R${i["preco"]} Quantidade: {i["quantidade"]}Kg')
-                print('-'*50)
-                
-                try:
-                    apagar = str(input(f'Deseja Excluir Mesmo o {i['nome']}: S/N '))
-                except:
-                    print('Digite o Valor Correto')
+        if produtos is None:
+            print('PRODUTO NAO ENCONTRADO')
+            return
+
+        print('-'*50)
+        print(f'Nome: {produtos[1]} Preço: R${produtos[2]} Quantidade: {produtos[3]}Kg')
+        print('-'*50)
+            
+        while True:        
+            try:
+                apagar = str(input(f'Deseja Excluir Mesmo o {produtos[1]}: S/N '))
+            except:
+                print('Digite o Valor Correto')
                 if apagar not in "SsNn":
                     print('Digite a opção Correta')        
-                if apagar in "Ss":
-                    print(f'O Produto {i["nome"]} Foi Excluido')
-                    produtos.remove(i)
+            if apagar in "Ss":
+                    del_db = ("DELETE FROM produtos WHERE id = %s")
+                    cursor.execute(del_db,(pesq,))
+                    conexao.commit()
+                    
+                    print(f'O Produto {produtos[1]} Foi Excluido')
                     break
-                if apagar in 'Nn':
-                    print(f'O produto {i['nome']} nao foi Excluido')
+            if apagar in 'Nn':
+                    print(f'O produto {produtos[1]} nao foi Excluido')
                     break  
-        if not  produtoencontrado:
-            print('PRODUTO NAO ENCONTRADO')
-            return             
- 
+       
  
 def menu(abrir):
     
