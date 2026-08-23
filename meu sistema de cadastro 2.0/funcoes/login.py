@@ -233,7 +233,34 @@ class Menu:
                 print(f'Preço: {c[2]} Quantidade: {c[3]}')
                 print()
                 print('-'*50)
+                
+            print()
+            self.pesquisar_produtos()    
+            print()
+    def pesquisar_produtos(self):
+     
+     
+        while True:    
+            try:    
+                pesq = str(input('Pesquisar o Produto: '))
+            except (ValueError,TypeError):
+                print('Digite um Valor errado')
+                continue
             
+            con_db = ("SELECT * FROM produtos WHERE nome = %s")
+            cursor.execute(con_db,(pesq,))
+            produtos = cursor.fetchone()
+            
+            if produtos is not None:
+                print('-'*50)
+                print(f'')    
+                print(f'Nome: {produtos[1]} Preço: R${produtos[2]} Quantidade: {produtos[3]}kg')
+                print('-'*50)
+                break
+            else:
+                print('Esse produto nao existe')    
+            
+                      
             
     def cadastrar_produtos(self):
             print('-'*50)
