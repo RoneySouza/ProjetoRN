@@ -1,9 +1,8 @@
 from funcoes.login import *
-from funcoes.fnc import *
 
 def main():
-    
-    tela_login('SISTEMA DE CADASTRO 2.0')
+    l = Login()    
+    l.tela_login('SISTEMA DE CADASTRO 2.0')
     
 
 
