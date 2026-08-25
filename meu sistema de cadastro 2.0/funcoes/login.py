@@ -82,9 +82,21 @@ class Login:
             """)
 
         while True:
-            
-            sele = int(input('Opção: '))
-    
+            try:
+                sele = int(input('Opção: '))
+            except ValueError:
+                print('Digite Apenas Numeros')
+                continue
+                
+            # if sele.isdigit():  # Verifica se só tem números
+            #     sele = int(sele)
+            #     # Processa a opção
+            # else:
+            #     print('❌ Digite apenas números!')
+            #     continue  # Volta ao menu    
+                
+                
+                 
             if sele == 1:
                 print('-'*30)            
                 print('LOGIN'.center(30))
@@ -133,10 +145,7 @@ class Login:
             
             if sele not in range(1,3):
                 print(f'Selecio a opção Correta')
-                
-      
-      
-      
+                      
 class Menu:
     def __init__(self,usu):
         self.usuinfo = usu
@@ -158,9 +167,13 @@ class Menu:
             \n
              """)
         
-        while True:                
-            sele = int(input('Opção: '))
-            
+        while True:
+            try:                
+                sele = int(input('Opção: '))
+            except ValueError,TypeError:
+                print('Insira um valor valido')
+                continue
+
             if isinstance(sele,int) or len(sele) <= 0:
                 print('Digite um Valor Valido')
             
@@ -169,7 +182,8 @@ class Menu:
                 case 1:
                     self.produtos()  
                 case 2:
-                    pass
+                    t = Clientes()
+                    t.menu_clientes()
                 case 3:
                     pass
                 case 4:
@@ -216,7 +230,6 @@ class Menu:
                     self.menu()       
                 case _:
                     print('opção invalida')
-
     
                 
     def Listar_produtos(self):
@@ -237,6 +250,8 @@ class Menu:
             print()
             self.pesquisar_produtos()    
             print()
+
+
     def pesquisar_produtos(self):
      
      
@@ -259,8 +274,7 @@ class Menu:
                 break
             else:
                 print('Esse produto nao existe')    
-            
-                      
+                                  
             
     def cadastrar_produtos(self):
             print('-'*50)
@@ -472,7 +486,165 @@ class Menu:
 class Clientes:
     
     def __init__(self):
-        pass
+        self._nome = None
+        self._cpf = None
+        self._Tel = None
+        self._end = None
+        
+        cursor = conexao.cursor()
+        cursor.execute("CREATE TABLE IF NOT EXISTS clientes(id INT AUTO_INCREMENT PRIMARY KEY,nome VARCHAR(100) NOT NULL,cpf VARCHAR(30) NOT NULL,telefone VARCHAR(30) NOT NULL, endereco VARCHAR(200))")
+        conexao.commit()
+
+
+    
+    def menu_clientes(self):
+        print('-'*40)
+        print('CLIENTES'.center(40))
+        print('-'*40)
+        
+        print("""
+              1 - LISTA DE CLIENTES
+              2 - CADASTRO DE CLIENTES
+              3 - EDITAR CLIENTE
+              4 - EXCLUIR CLIENTE
+              5 - VOLTAR    
+              """)
+        
+        while True:    
+            try:
+                opcao =  int(input('Opção: '))
+            except ValueError:
+                print('Valor inserido invalido')
+                continue
+            
+            if opcao not in range(1,5):
+                print('Escolha uma opção Valida')
+            
+            if not isinstance(opcao, int):
+                print('Digite um Valor valido')
+            
+            match opcao:
+                
+                case 1:
+                    self.listar_Clientes()
+                case 2:
+                    self.Cadastro_clientes()
+                case 3:
+                    pass
+                case 4:
+                    pass
+                case 5:
+                    pass
+                case _:
+                    print('Escolha uma opção Valida')             
+            
+    
+    def Cadastro_clientes(self):
+        print('-'*40)
+        print('CADASTRANDO CLIENTES'.center(40))
+        print('-'*40)
+    
+    
+        while True:
+            try:    
+                nome = str(input('Nome Completo: '))
+            except ValueError:
+                print('Valor digitado Invalido')
+                continue
+            
+            if not isinstance(nome, str):
+                print('Por favor Digite um nome Valido')
+                
+            if 3 <= len(nome) <= 100:
+                print('Nome Inserido Com sucesso')
+                self._nome = nome
+                break
+            else:
+                print('nome invalido')  
+    
+        while True:
+            
+            try:
+                cpf = str(input('CPF: '))
+            except ValueError:
+                print('valor digitado Invalido')
+                continue
+                
+            if not isinstance(cpf, str):
+                print('Por favor digite um valor valido')
+                
+            if 11 <= len(cpf) <= 14:
+                print('Cpf Inserido com Sucesso')
+                self._cpf = cpf
+                break
+            else:
+                print('Cpf Invalido')
+                
+        while True:
+            try:
+                tel = str(input('TEl: '))
+            except ValueError:
+                print('Valor digitado invalido')
+                continue
+            
+            if not isinstance(tel, str):
+                print('Digite um Numero de Telefone Valido')
+            if 11 < len(tel) <= 12:
+                print('Digite um Numero de Telefone valido')    
+            else:
+                print('Telefone Inserido Com Sucesso')
+                self._Tel = tel
+                break
+        
+        while True:
+            try:        
+                end = str(input('Endereço RUA/N/Bairro: '))
+            except ValueError:
+                print('valor digitado invalido')
+                continue
+                    
+            if 5 <= len(end) <= 100:
+                print('Endereço inserido com sucesso')
+                self._end = end
+                break     
+            else:
+                print('Endereço invalido')
+                           
+        
+        while True:            
+            try:
+                pergunta = str(input('Deseja mesmo Cadastrar este Cliente: S/N')).strip()[0]
+            except ValueError:
+                print('Valor digitado invalido')
+            if pergunta not in 'SsNn':
+                print('Escolha uma opção Valida')
+            elif pergunta in 'Ss':
+                print('Cadastro Realizado Com sucesso')
+                con_db = "INSERT INTO clientes (nome,cpf,telefone,endereco) VALUES(%s,%s,%s,%s)"
+                cursor.execute(con_db,(self._nome,self._cpf,self._Tel,self._end,))
+                conexao.commit()
+                self.menu_clientes()
+                break
+            elif pergunta in 'Nn':
+                print('Cadastro Cancelado')
+                self.menu_clientes()
+                break                            
+        
+        
+    def listar_Clientes(self):
+        print('-'*100)
+        print('LISTA DE CLIENTES'.center(100))
+        print('-'*100)
+        
+        cursor.execute('SELECT * FROM clientes')
+        cliente = cursor.fetchall()
+        
+        for c in cliente:
+            print(f'ID: {c[0]} NOME {c[1]}', end=' ')
+            print(f'CPF: {c[2]} TELEFONE: {c[3]}', end=' ')
+            print(f'END: {c[4]}')
+            print()
+            print('-'*50)               
     
     
 class Fornecedores:
