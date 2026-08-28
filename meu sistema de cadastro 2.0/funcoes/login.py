@@ -1,6 +1,7 @@
 from banco.bd import *
 from hashlib import sha256
 from pwinput import pwinput
+from abc import ABC,abstractmethod
 
 
 class Login:
@@ -56,7 +57,7 @@ class Login:
         con_bd = ("SELECT * FROM login WHERE usuario = %s AND hash = %s ")
         cursor.execute(con_bd,(usu,chv))
         login = cursor.fetchone()
-        
+        # self.menu(usu)
         
         if not isinstance(usu,str) and not isinstance(chv,str):
             print(f'tipo de valor nao aceito ')
@@ -65,8 +66,50 @@ class Login:
             print(f'Usuario {usu} nao existe\n')
         else:
             print(f'usuario {usu} encontrado Login Bem Sucedido\n')
-            m =  Menu(usu)
-            m.menu()
+            self.menu(usu)
+    
+    def menu(self,usu):
+        
+            print('-'*40)
+            print(f'BEM VINDO AO MENU'.center(40))
+            print('-'*40)
+            print(f'Usuario: {usu}\n')
+        
+            print("""
+                1 - PRODUTOS
+                2 - CLIENTES
+                3 - FORNECEDORES
+                4 - VOLTAR
+                \n
+                 """)
+            
+            while True:
+                try:                
+                    sele = int(input('Opção: '))
+                except ValueError,TypeError:
+                    print('Insira um valor valido')
+                    continue
+    
+                if isinstance(sele,int) or len(sele) <= 0:
+                    print('Digite um Valor Valido')
+                
+                match sele:
+                    
+                    case 1:
+                        t = Produtos()
+                        t.produtos()  
+                    case 2:
+                        t = Clientes()
+                        t.menu_clientes()
+                    case 3:
+                        pass
+                    case 4:
+                        pass
+                    case _:
+                        print('opção invalida')
+  
+  
+            
   
     def tela_login(self,title):
     
@@ -146,51 +189,266 @@ class Login:
             if sele not in range(1,3):
                 print(f'Selecio a opção Correta')
                       
-class Menu:
-    def __init__(self,usu):
-        self.usuinfo = usu
-    
-    
-            
-    def menu(self):
-    
-        print('-'*40)
-        print(f'BEM VINDO AO MENU'.center(40))
-        print('-'*40)
-        print(f'Usuario: {self.usuinfo}\n')
-    
-        print("""
-            1 - PRODUTOS
-            2 - CLIENTES
-            3 - FORNECEDORES
-            4 - VOLTAR
-            \n
-             """)
+class Menu(ABC):
+    def __init__(self,tabela):
+        super().__init__()
+        self.tabela = tabela
+        self.usuinfo = None
+        self.config = self.get_config()
+        
+    def get_config(self):
+        """cada classe filha deve sobreescrever este metodo"""
+        return{
+            'campos': [],
+            'tipos' : [],
+            'validacoes': []
+        }    
+        
+        
+        
+
+    @abstractmethod    
+    def listar(self):
+                print('-'*50)
+                print(f'{self.tabela.upper()} CADASTRADOS'.center(50))
+                print('-'*50)
+                config = self.config
+                
+                cursor.execute(f'SELECT * FROM {self.tabela}')
+                registros = cursor.fetchall()
+                
+                for c in registros:
+                    print(f'ID: {c[0]}', end=' ')
+                    for i,campo in enumerate(config['campos']):
+                        print(f'{campo} : {c[i+1]}',end=' ')
+                        print()
+                        print('-'*50)
+                        
+                print()
+        
+        
+    @abstractmethod
+    def pesquisar(self):
+
+        print('-'*50)
+        print(f' PESQUISAR {self.tabela.upper()}'.center(50))
+        print('-'*50)
         
         while True:
-            try:                
-                sele = int(input('Opção: '))
-            except ValueError,TypeError:
-                print('Insira um valor valido')
+            try:
+                pesq = input(f'Digite o nome do {self.tabela}: ').strip()
+                
+                # VALIDAÇÕES
+                if not pesq:
+                    print(' Digite um nome para pesquisar!')
+                    continue
+                
+                if len(pesq) < 2:
+                    print(' Digite pelo menos 2 caracteres!')
+                    continue
+                
+                # Se passou nas validações, sai do loop
+                break
+                
+            except (ValueError, TypeError):
+                print(' Valor inválido!')
+                continue
+        
+        # BUSCA NO BANCO
+        try:
+            con_db = f"SELECT * FROM {self.tabela} WHERE nome LIKE %s"
+            cursor.execute(con_db, (f'%{pesq}%',))
+            registros = cursor.fetchall()
+            
+            if not registros:
+                print(f' Nenhum {self.tabela} encontrado com o nome "{pesq}"!')
+                return
+            
+            # MOSTRA RESULTADOS
+            print('\n' + '='*50)
+            print(f' RESULTADOS DA PESQUISA'.center(50))
+            print('='*50)
+            
+            for registro in registros:
+                print(f'ID: {registro[0]}')
+                # Mostra os campos dinamicamente
+                for i, campo in enumerate(self.config['campos']):
+                    if i + 1 < len(registro):
+                        print(f'{campo.capitalize()}: {registro[i+1]}')
+                print('-'*50)
+                
+            print(f' {len(registros)} registro(s) encontrado(s)!')
+            
+        except Exception as e:
+            print(f' Erro ao pesquisar: {e}')
+        
+
+    @abstractmethod
+    def editar(self):
+        print('-'*40)
+        print(f'EDITAR {self.tabela.upper()}'.center(40))
+        print('-'*40)
+        config = self.config
+        
+        cursor.execute(f'SELECT * FROM {self.tabela}')
+        registros =  cursor.fetchall()
+        
+        if not registros:
+            print(f'Nenhum {self.tabela} foi encontrado!')
+            return
+        
+        for c in registros:
+            print(f'ID: {c[0]}', end=' ')
+            for i,campo in enumerate(config['campos']):
+                print(f'{campo}: {c[i+1]}',end=' ')
+                print()
+                print('-'*50)
+         
+        try:
+            pesq = int(input('Qual ID voce quer Editar: '))
+        except ValueError:
+            return f'Valor invalido'     
+
+        con_db = (f'SELECT * FROM {self.tabela} WHERE id = %s')
+        cursor.execute(con_db,(pesq,))
+        registro = cursor.fetchone()
+        
+        if registro is None:
+            print(f'Esse {self.tabela} Nao Existe')
+          
+        novos_dados = []
+        for i,campo in enumerate(config['campos']):
+            valor_atual = registro[i+1]
+            tipo = config['tipos'][i]  
+            
+            while True:
+                try:
+                    if tipo == 'int':
+                        valor = input(f'Novo {campo} (atual: {valor_atual}): ')
+                        valor = int(valor) if valor else valor_atual
+                        if valor < 0:
+                            print('❌ Não pode ser negativo')
+                            continue
+                    elif tipo == 'float':
+                        valor = input(f'Novo {campo} (atual: {valor_atual}): ')
+                        valor = float(valor) if valor else valor_atual
+                        if valor < 0:
+                            print('❌ Não pode ser negativo')
+                            continue
+                    else:  # string
+                        valor = input(f'Novo {campo} (atual: {valor_atual}): ')
+                        valor = valor if valor else valor_atual
+                        if len(str(valor).strip()) == 0:
+                            print('❌ Não pode ser vazio')
+                            continue
+                    
+                    novos_dados.append(valor)
+                    break
+                except ValueError:
+                    print(f'❌ Tipo inválido para {campo}')
+        
+        # Confirma
+        confirmar = input('🔄 Atualizar? (S/N): ').strip().upper()[0]
+        if confirmar == 'S':
+            campos_sql = ', '.join([f'{campo} = %s' for campo in config['campos']])
+            query = f"UPDATE {self.tabela} SET {campos_sql} WHERE id = %s"
+            cursor.execute(query, novos_dados + [pesq])
+            conexao.commit()
+            print(f'✅ {self.tabela} atualizado!')  
+       
+            
+                       
+    @abstractmethod            
+    def excluir(self):
+        print('-'*40)
+        print(f'EXCLUIR {self.tabela.upper()}'.center(40))
+        print('-'*40)
+        config = self.config
+        
+        # CORREÇÃO 1: Verifica se config existe
+        if not config or 'campos' not in config:
+            print('❌ Configuração inválida!')
+            return
+        
+        cursor.execute(f"SELECT * FROM {self.tabela}")
+        registros = cursor.fetchall()
+        
+        # CORREÇÃO 2: Verifica se há registros
+        if not registros:
+            print(f'❌ Nenhum {self.tabela} cadastrado!')
+            return
+        
+        # CORREÇÃO 3: Mostra registros corretamente
+        for c in registros:
+            print(f'ID: {c[0]}', end=' ')
+            # CORREÇÃO: Usa config['campos'] em vez de config
+            for i, campo in enumerate(config['campos']):
+                if i + 1 < len(c):
+                    print(f'{campo}: {c[i+1]}', end=' ')
+            print()
+            print('-'*50)
+        
+        # CORREÇÃO 4: Remove o loop desnecessário de coleta de dados
+        # (não precisa de novosDados para excluir)
+        
+        # Seleciona ID para excluir
+        while True: 
+            try:    
+                pesq = int(input('🔍 Qual ID deseja excluir: '))
+                if pesq <= 0:
+                    print('❌ ID deve ser positivo!')
+                    continue
+                break
+            except ValueError:
+                print('❌ Digite um número válido!')
+                continue
+        
+        # Busca o registro
+        con_db = f"SELECT * FROM {self.tabela} WHERE id = %s"
+        cursor.execute(con_db, (pesq,))
+        registro = cursor.fetchone()
+        
+        if not registro:
+            print(f'❌ {self.tabela.capitalize()} não encontrado!')
+            return
+        
+        # Mostra o registro
+        print('\n📋 Registro encontrado:')
+        print(f'ID: {registro[0]}')
+        for i, campo in enumerate(config['campos']):
+            if i + 1 < len(registro):
+                print(f'{campo.capitalize()}: {registro[i+1]}')
+        
+        # Confirma exclusão
+        while True:               
+            try:
+                apagar = input('❓ Deseja realmente apagar? (S/N): ').strip().upper()[0]
+                if apagar == 'S':
+                    del_db = f"DELETE FROM {self.tabela} WHERE id = %s"
+                    cursor.execute(del_db, (pesq,))
+                    conexao.commit()
+                    print(f'✅ {self.tabela.capitalize()} excluído com sucesso!')
+                    break
+                elif apagar == 'N':
+                    print('❌ Exclusão cancelada!')
+                    break
+                else:
+                    print('❌ Digite S ou N')
+            except (ValueError, IndexError):
+                print('❌ Digite S ou N')
                 continue
 
-            if isinstance(sele,int) or len(sele) <= 0:
-                print('Digite um Valor Valido')
-            
-            match sele:
-                
-                case 1:
-                    self.produtos()  
-                case 2:
-                    t = Clientes()
-                    t.menu_clientes()
-                case 3:
-                    pass
-                case 4:
-                    pass
-                case _:
-                    print('opção invalida')
+
+class Produtos(Menu):
+    def __init__(self):
+        super().__init__('produtos')
+        self.config = {
+            'campos': ['nome', 'preco', 'quantidade'],
+            'tipos': ['str', 'float', 'int']
+        }
         
+
+         
     def produtos(self):
         print('-'*40)
         print('MENU PRODUTOS'.center(40))
@@ -202,7 +460,8 @@ class Menu:
               2 - CADASTRAR PRODUTOS
               3 - EDITAR PRODUTOS
               4 - EXCLUIR PRODUTOS
-              5 - VOLTAR
+              5 - PESQUISAR PRODUTOS
+              6 - VOLTAR
               \n
               """)
         
@@ -219,63 +478,26 @@ class Menu:
             match sele:
                 
                 case 1:
-                    self.Listar_produtos()
+                    produtos = self.produtos
+                    self.listar(produtos)
                 case 2:
                     self.cadastrar_produtos()
                 case 3:
-                    self.editar_produtos()
+                   produtos = self.produtos
+                   self.editar(produtos)
                 case 4:
-                    self.excluir_produtos()
+                    produtos = self.produtos
+                    self.excluir(produtos)
                 case 5:
-                    self.menu()       
+                    produtos = self.produtos
+                    self.pesquisar(produtos)
+                case 6:
+                    self.menu()   
+                           
                 case _:
                     print('opção invalida')
-    
-                
-    def Listar_produtos(self):
-            print('-'*50)
-            print('PRODUTOS CADASTRADOS'.center(50))
-            print('-'*50)
-            
-            
-            cursor.execute('SELECT * FROM produtos')
-            produtos = cursor.fetchall()
-            
-            for c in produtos:
-                print(f'ID: {c[0]} Nome {c[1]}', end=' ')
-                print(f'Preço: {c[2]} Quantidade: {c[3]}')
-                print()
-                print('-'*50)
-                
-            print()
-            self.pesquisar_produtos()    
-            print()
-
-
-    def pesquisar_produtos(self):
      
-     
-        while True:    
-            try:    
-                pesq = str(input('Pesquisar o Produto: '))
-            except (ValueError,TypeError):
-                print('Digite um Valor errado')
-                continue
-            
-            con_db = ("SELECT * FROM produtos WHERE nome = %s")
-            cursor.execute(con_db,(pesq,))
-            produtos = cursor.fetchone()
-            
-            if produtos is not None:
-                print('-'*50)
-                print(f'')    
-                print(f'Nome: {produtos[1]} Preço: R${produtos[2]} Quantidade: {produtos[3]}kg')
-                print('-'*50)
-                break
-            else:
-                print('Esse produto nao existe')    
-                                  
-            
+                                             
     def cadastrar_produtos(self):
             print('-'*50)
             print('CADASTRANDO PRODUTOS'.center(50))
@@ -335,162 +557,29 @@ class Menu:
                     print('PRODUTO NAO CADASTRADO\n')
                     self.produtos
                     break        
-                
 
-    def editar_produtos(self):
-        print('-'*40)
-        print('EDITAR PRODUTOS'.center(40))
-        print('-'*40)
-        
-        cursor.execute('SELECT * FROM produtos')
-        produtos =  cursor.fetchall()
-        
-        for c in produtos:
-            print(f'ID: {c[0]} Nome {c[1]}', end=' ')
-            print(f'Preço: {c[2]} Quantidade: {c[3]}')
-            print()
-            print('-'*50)
-         
-        try:
-            pesq = int(input('Qual ID voce quer Editar: '))
-        except ValueError:
-            return f'Valor invalido'     
-
-        con_db = ('SELECT * FROM produtos WHERE id = %s')
-        cursor.execute(con_db,(pesq,))
-        produtos = cursor.fetchone()
-        
-        if produtos is None:
-            print('Esse Produto Nao Existe')
-            self.editar_produtos()
-            
-            
-        while True:    
-            try:
-                novonome = str(input('Novo Nome: '))    
-            except ValueError:
-                return f'Valor invalido'
-            
-            if not isinstance(novonome, str) or len(novonome) == 0:
-                print('Digite um Nome Valido')
-            else:
-                print(f'Nome: {novonome} inserido com Sucesso')
-                break
-                       
-        while True:    
-            try:
-                novopreco = int(input('Novo Preço: '))    
-            except ValueError:
-                return f'Valor invalido'
-            
-            if not isinstance(novopreco, int) or novopreco < 0:
-                print('Digite um preço Valido')
-            else:
-                print(f'Preço R${novopreco:.2f} Inserido com Sucesso')
-                break    
-            
-        while True:    
-            try:
-                novoquantidade = int(input('Nova Quantidade: '))    
-            except ValueError:
-                return f'Valor invalido'
-            
-            if not isinstance(novoquantidade, int) or novoquantidade < 0:
-                print('Digite um Valor Valido')
-            else:
-                print(f'Quantidade {novoquantidade}kg Inserido Com Sucesso')    
-                break
-        while True:        
-            try:
-                att = str(input('Atualizar Produto: S/N ')).strip()[0]
-            except ValueError:
-                return f'Digite um valor valido'
-            
-            if not isinstance(att, int) or len(att) == 0:
-                print('Escolha a opçao Valida')
-            if att not in 'SsNn':
-                print('Esta opção Nao é Valida')
-            if att in 'Ss':
-                con_produtos = ("UPDATE produtos SET nome = %s,preco = %s, quantidade = %s WHERE id = %s")
-                valores = (novonome,novopreco,novoquantidade,pesq)
-                cursor.execute(con_produtos,valores)
-                conexao.commit()
-                print(f'PRODUTO {novonome} ATUALIADO')
-                self.produtos()
-                break
-                
-            if att in 'Nn':
-                print(f'PRODUTO {produtos[1]} NAO FOI ATUALIZADO')
-                self.produtos()
-                break            
-
+    def pesquisar(self,produtos):
+        return super().pesquisar()
     
+    def listar(self,produtos):
+        return super().listar()
+        
+    def editar(self,produtos):
+        return super().editar()
+    def excluir(self,produtos):
+        return super().excluir()
     
-    def excluir_produtos(self):
-        print('-'*40)
-        print('EXCLUIR PRODUTOS'.center(40))
-        print('-'*40)
-        
-        cursor.execute("SELECT * FROM produtos")
-        produtos = cursor.fetchall()
-        
-        for c in produtos:
-            print(f'ID: {c[0]} Nome {c[1]}', end=' ')
-            print(f'Preço: {c[2]} Quantidade: {c[3]}')
-            print()
-            print('-'*50)
-            
-        while True: 
-            try:    
-                pesq  = int(input('Qual Produto Voce quer Excluir: '))
-            except ValueError:
-                print('Valor inserido Invalido')
-            
-            if not isinstance(pesq, int) or pesq < 0:
-                print('Valor inserido é Invalido')
-            
-            # Buscar produto pelo ID
-            con_db = "SELECT * FROM produtos WHERE id = %s"
-            cursor.execute(con_db, (pesq,))
-            produto = cursor.fetchone()
-            
-            if produto:
-                print(f'Produto encontrado: {produto[1]}')
-                break    
-                    
-            if produtos is None:
-                print('Produto Não Econtrado')
-        
-                
-        while True:               
-            try:
-                apagar = str(input('Deseja Realmente Apagar: S/N ')).strip()[0]
-            except ValueError:
-                return f'Valor inserido Invalido'
-            if not isinstance(apagar, str) or len(apagar) == 0:
-                print('Digite um valor Valido')  
-            if apagar not in "SsNn":
-                print('Escolha uma Opção Valida')
-            if apagar in "Ss":
-                print(f'PRODUTO {produto[1]} EXCLUIDO COM SUCESSO')
-                del_db = ("DELETE FROM produtos WHERE id = %s")
-                cursor.execute(del_db,(pesq,))
-                conexao.commit()
-                self.produtos()
-                break
-            if apagar in "Nn":
-                print('Produto Não apagado')
-                self.produtos()
-                break    
-    
-class Clientes:
+class Clientes(Menu):
     
     def __init__(self):
-        self._nome = None
-        self._cpf = None
-        self._Tel = None
-        self._end = None
+        super().__init__('clientes')
+        self.config = {
+            'campos': ['nome', 'cpf', 'telefone', 'endereco'],
+            'tipos': ['str', 'str', 'str', 'str']
+        }
+        # ... resto do código
         
+    
         cursor = conexao.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS clientes(id INT AUTO_INCREMENT PRIMARY KEY,nome VARCHAR(100) NOT NULL,cpf VARCHAR(30) NOT NULL,telefone VARCHAR(30) NOT NULL, endereco VARCHAR(200))")
         conexao.commit()
@@ -505,9 +594,10 @@ class Clientes:
         print("""
               1 - LISTA DE CLIENTES
               2 - CADASTRO DE CLIENTES
-              3 - EDITAR CLIENTE
-              4 - EXCLUIR CLIENTE
-              5 - VOLTAR    
+              3 - PESQUISAR CLIENTES
+              4 - EDITAR CLIENTE
+              5 - EXCLUIR CLIENTE
+              6 - VOLTAR    
               """)
         
         while True:    
@@ -526,128 +616,135 @@ class Clientes:
             match opcao:
                 
                 case 1:
-                    self.listar_Clientes()
+                    clientes = self.menu_clientes
+                    self.listar(clientes)
                 case 2:
-                    self.Cadastro_clientes()
+                    self.cadastrar_clientes()
                 case 3:
-                    pass
+                    clientes = self.menu_clientes
+                    self.pesquisar(clientes)
                 case 4:
-                    pass
+                    clientes = self.menu_clientes
+                    self.editar(clientes)
                 case 5:
-                    pass
+                    clientes = self.menu_clientes
+                    self.excluir(clientes)
+                case 6:
+                    self.menu_clientes    
+                    
                 case _:
                     print('Escolha uma opção Valida')             
             
-    
-    def Cadastro_clientes(self):
-        print('-'*40)
-        print('CADASTRANDO CLIENTES'.center(40))
-        print('-'*40)
-    
-    
+            
+    def cadastrar_clientes(self):
+        print('-'*50)
+        print('CADASTRO DE CLIENTES'.center(50))
+        print('-'*50)
+        
         while True:
-            try:    
+            try:
                 nome = str(input('Nome Completo: '))
             except ValueError:
-                print('Valor digitado Invalido')
-                continue
+                print('Error digite o Valor correto')
+                continue    
             
-            if not isinstance(nome, str):
-                print('Por favor Digite um nome Valido')
-                
-            if 3 <= len(nome) <= 100:
-                print('Nome Inserido Com sucesso')
-                self._nome = nome
+            if isinstance(nome, str) and 8 <= len(nome) <= 12:
+                print('Nome Inserido Com sucesso!')
                 break
             else:
-                print('nome invalido')  
-    
+                print('Nome invalido')
+             
+             
+        while True:
+            cpf = input('CPF (apenas números ou xxx.xxx.xxx-xx): ').strip()
+            
+            # Remove formatação
+            cpf_limpo = cpf.replace('.', '').replace('-', '')
+            
+            # Verificações básicas
+            if not cpf_limpo.isdigit():
+                print('Erro: CPF deve conter apenas números')
+                continue
+            
+            if len(cpf_limpo) != 11:
+                print('Erro: CPF deve ter 11 dígitos')
+                continue
+            else:
+            # Formata automaticamente
+                cpf_formatado = f'{cpf_limpo[:3]}.{cpf_limpo[3:6]}.{cpf_limpo[6:9]}-{cpf_limpo[9:]}'
+                print(f'CPF válido: {cpf_formatado}')
+                break
+         
         while True:
             
             try:
-                cpf = str(input('CPF: '))
-            except ValueError:
-                print('valor digitado Invalido')
+                tel = input('TEl: ')
+            except(ValueError,TypeError):
+                print(' Error:Valor digitado Incorreto')    
                 continue
+            
+            if not tel.isdigit():
+                print('Erro: Numero de telefone deve conter apenas numeros')
                 
-            if not isinstance(cpf, str):
-                print('Por favor digite um valor valido')
-                
-            if 11 <= len(cpf) <= 14:
-                print('Cpf Inserido com Sucesso')
-                self._cpf = cpf
-                break
+            if len(tel) != 11:
+                print('Erro: Coloque o DD junto com o numero')
+                                                         
             else:
-                print('Cpf Invalido')
+                print('Telefone inserido com Sucesso')
+                break
+                
                 
         while True:
             try:
-                tel = str(input('TEl: '))
+                end = str(input('Cidade: '))
             except ValueError:
-                print('Valor digitado invalido')
-                continue
-            
-            if not isinstance(tel, str):
-                print('Digite um Numero de Telefone Valido')
-            if 11 < len(tel) <= 12:
-                print('Digite um Numero de Telefone valido')    
-            else:
-                print('Telefone Inserido Com Sucesso')
-                self._Tel = tel
-                break
-        
-        while True:
-            try:        
-                end = str(input('Endereço RUA/N/Bairro: '))
-            except ValueError:
-                print('valor digitado invalido')
-                continue
+                print('Error digite o Valor correto')
+                continue    
                     
-            if 5 <= len(end) <= 100:
-                print('Endereço inserido com sucesso')
-                self._end = end
-                break     
-            else:
-                print('Endereço invalido')
-                           
-        
-        while True:            
-            try:
-                pergunta = str(input('Deseja mesmo Cadastrar este Cliente: S/N')).strip()[0]
-            except ValueError:
-                print('Valor digitado invalido')
-            if pergunta not in 'SsNn':
-                print('Escolha uma opção Valida')
-            elif pergunta in 'Ss':
-                print('Cadastro Realizado Com sucesso')
-                con_db = "INSERT INTO clientes (nome,cpf,telefone,endereco) VALUES(%s,%s,%s,%s)"
-                cursor.execute(con_db,(self._nome,self._cpf,self._Tel,self._end,))
-                conexao.commit()
-                self.menu_clientes()
+            if isinstance(end, str) and 5 <= len(end) <= 20:
+                print('Cidade Inserido Com sucesso!')
                 break
-            elif pergunta in 'Nn':
-                print('Cadastro Cancelado')
-                self.menu_clientes()
-                break                            
-        
-        
-    def listar_Clientes(self):
-        print('-'*100)
-        print('LISTA DE CLIENTES'.center(100))
-        print('-'*100)
-        
-        cursor.execute('SELECT * FROM clientes')
-        cliente = cursor.fetchall()
-        
-        for c in cliente:
-            print(f'ID: {c[0]} NOME {c[1]}', end=' ')
-            print(f'CPF: {c[2]} TELEFONE: {c[3]}', end=' ')
-            print(f'END: {c[4]}')
-            print()
-            print('-'*50)               
+            else:
+                print('Nome invalido')
+                
+        while True:
+            try:
+                p = str(input('Cadastrar Cliente? S/N')).strip()[0] 
+            except ValueError:
+                print('Error valor digitado invalido')
+                
+            if p not in 'SsNn':
+                print('Digite sim ou nao')
+            if p in 'Ss':
+                con_db = "INSERT INTO clientes(nome,cpf,telefone,endereco) VALUES(%s,%s,%s,%s)"
+                cursor.execute(con_db,(nome,cpf,tel,end,))
+            
+                print(f'Cliente {nome} Cadastrado com Sucesso ')
+                break
+            if p in 'Nn':
+                print('Cadastro Cancelado')    
+                break    
+                
+    def listar(self,clientes):
+        return super().listar()
     
+    def pesquisar(self,clientes):
+        return super().pesquisar()
     
-class Fornecedores:
+    def editar(self,clientes):
+        return super().editar()
+    
+    def excluir(self,clientes):
+        return super().excluir()     
+    
+class Fornecedores(Menu):
     def __init__(self):
-        pass
+        super().__init__('fornecedores')
+        self.config = {
+            'campos': ['nome', 'cnpj', 'telefone', 'email', 'endereco'],
+            'tipos': ['str', 'str', 'str', 'str', 'str']
+        }
+        
+        
+        
     
